@@ -11,7 +11,7 @@ set -o pipefail
 VERSION=11.2.1_PUBLIC_20241105
 VERSION_SHORTER=11.2.1
 VERSION_SHORT=${VERSION_SHORTER}_PUBLIC
-CUSTOM_RELEASE_VERSION=${VERSION}-2
+CUSTOM_RELEASE_VERSION=${VERSION}-3
 
 SONATYPE_URL=https://central.sonatype.com/service/local/staging/deploy/maven2/
 # the server id from your local ~/.m2/settings.xml
@@ -27,6 +27,8 @@ support/buildGhidraJar
 
 # create custom-made maven build just for deploying to maven central
 mkdir -p build/src/main/resources
+mkdir -p build/src/main/javadoc
+touch build/src/main/javadoc/empty
 sed s/__VERSION__/$CUSTOM_RELEASE_VERSION/ ../pom.xml.template > build/pom.xml
 unzip -d build/src/main/resources ghidra.jar
 
@@ -34,7 +36,6 @@ unzip -d build/src/main/resources ghidra.jar
 # context: lookup happens transitively by loading classes from _Root/Ghidra/EXTENSION_POINT_CLASSES
 # unzip flag `-o` to override and update files without prompting the user
 unzip -o -d build/src/main/resources Ghidra/Features/ByteViewer/lib/ByteViewer.jar
-
 
 # deploy to sonatype central
 pushd build
