@@ -11,7 +11,7 @@ set -o pipefail
 VERSION=11.2.1_PUBLIC_20241105
 VERSION_SHORTER=11.2.1
 VERSION_SHORT=${VERSION_SHORTER}_PUBLIC
-CUSTOM_RELEASE_VERSION=${VERSION}-3
+CUSTOM_RELEASE_VERSION=${VERSION}-6
 
 SONATYPE_URL=https://central.sonatype.com/service/local/staging/deploy/maven2/
 # the server id from your local ~/.m2/settings.xml
@@ -25,11 +25,10 @@ rm ghidra_$VERSION.zip
 cd ghidra_${VERSION_SHORT}
 support/buildGhidraJar
 
+mkdir build
 # create custom-made maven build just for deploying to maven central
-mkdir -p build/src/main/resources
-mkdir -p build/src/main/javadoc
-touch build/src/main/javadoc/empty
 sed s/__VERSION__/$CUSTOM_RELEASE_VERSION/ ../pom.xml.template > build/pom.xml
+mkdir -p build/src/main/resources
 unzip -d build/src/main/resources ghidra.jar
 
 # add classes from ByteViewer.jar - those are looked up at runtime via reflection
@@ -37,11 +36,16 @@ unzip -d build/src/main/resources ghidra.jar
 # unzip flag `-o` to override and update files without prompting the user
 unzip -o -d build/src/main/resources Ghidra/Features/ByteViewer/lib/ByteViewer.jar
 
+# add an empty dummy class in order to generate sources and javadoc jars
+mkdir -p build/src/main/java
+echo '/** just an empty placeholder to trigger javadoc generation */
+public interface Empty {}' > build/src/main/java/Empty.java
+
 # deploy to sonatype central
 pushd build
-  mvn deploy
+mvn javadoc:jar source:jar package gpg:sign deploy
 popd
 
-echo "release is now published to sonatype central. next step: log into https://central.sonatype.com/publishing/deployments and publish it to maven central"
+echo "release is now published to sonatype central and should get promoted to maven central automatically. For more context go to https://central.sonatype.com/publishing/deployments"
 echo "once it's synchronised to maven central (https://repo1.maven.org/maven2/io/joern/ghidra/), update the ghidra version in 'joern/project/Versions.scala' to $CUSTOM_RELEASE_VERSION"
 echo "don't forget to commit and push the local changes in this repo to https://github.com/joernio/ghidra"
