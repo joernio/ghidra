@@ -11,7 +11,7 @@ set -o pipefail
 VERSION=11.2.1_PUBLIC_20241105
 VERSION_SHORTER=11.2.1
 VERSION_SHORT=${VERSION_SHORTER}_PUBLIC
-CUSTOM_RELEASE_VERSION=${VERSION}-6
+CUSTOM_RELEASE_VERSION=${VERSION}-7
 
 SONATYPE_URL=https://central.sonatype.com/service/local/staging/deploy/maven2/
 # the server id from your local ~/.m2/settings.xml
@@ -20,6 +20,7 @@ REPO_ID=sonatype-nexus-staging-joern
 DISTRO_URL=https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_${VERSION_SHORTER}_build/ghidra_${VERSION}.zip
 echo "download and unzip ghidra distribution from $DISTRO_URL"
 wget $DISTRO_URL
+rm -rf ghidra_${VERSION_SHORT}
 unzip ghidra_$VERSION.zip
 rm ghidra_$VERSION.zip
 cd ghidra_${VERSION_SHORT}
