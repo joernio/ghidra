@@ -13,10 +13,6 @@ VERSION_SHORTER=11.2.1
 VERSION_SHORT=${VERSION_SHORTER}_PUBLIC
 CUSTOM_RELEASE_VERSION=${VERSION}-7
 
-SONATYPE_URL=https://central.sonatype.com/service/local/staging/deploy/maven2/
-# the server id from your local ~/.m2/settings.xml
-REPO_ID=sonatype-nexus-staging-joern
-
 DISTRO_URL=https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_${VERSION_SHORTER}_build/ghidra_${VERSION}.zip
 echo "download and unzip ghidra distribution from $DISTRO_URL"
 wget $DISTRO_URL
@@ -26,9 +22,10 @@ rm ghidra_$VERSION.zip
 cd ghidra_${VERSION_SHORT}
 support/buildGhidraJar
 
-mkdir build
 # create custom-made maven build just for deploying to maven central
-sed s/__VERSION__/$CUSTOM_RELEASE_VERSION/ ../pom.xml.template > build/pom.xml
+rm -rf build
+mkdir build
+sed s/__VERSION__/$CUSTOM_RELEASE_VERSION/ pom.xml.template > build/pom.xml
 mkdir -p build/src/main/resources
 unzip -d build/src/main/resources ghidra.jar
 
