@@ -8,10 +8,10 @@ set -o pipefail
 # https://repo1.maven.org/maven2/io/joern/ghidra/
 # see also https://github.com/NationalSecurityAgency/ghidra/issues/799
 
-VERSION=11.2.1_PUBLIC_20241105
-VERSION_SHORTER=11.2.1
+VERSION=11.3_PUBLIC_20250205
+VERSION_SHORTER=11.3
 VERSION_SHORT=${VERSION_SHORTER}_PUBLIC
-CUSTOM_RELEASE_VERSION=${VERSION}-7
+CUSTOM_RELEASE_VERSION=${VERSION}-3
 
 DISTRO_URL=https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_${VERSION_SHORTER}_build/ghidra_${VERSION}.zip
 echo "download and unzip ghidra distribution from $DISTRO_URL"
@@ -25,7 +25,7 @@ support/buildGhidraJar
 # create custom-made maven build just for deploying to maven central
 rm -rf build
 mkdir build
-sed s/__VERSION__/$CUSTOM_RELEASE_VERSION/ pom.xml.template > build/pom.xml
+sed s/__VERSION__/$CUSTOM_RELEASE_VERSION/ ../pom.xml.template > build/pom.xml
 mkdir -p build/src/main/resources
 unzip -d build/src/main/resources ghidra.jar
 
