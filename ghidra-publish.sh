@@ -8,10 +8,10 @@ set -o pipefail
 # https://repo1.maven.org/maven2/io/joern/ghidra/
 # see also https://github.com/NationalSecurityAgency/ghidra/issues/799
 
-VERSION=11.3_PUBLIC_20250205
-VERSION_SHORTER=11.3
+VERSION=11.3.1_PUBLIC_20250219
+VERSION_SHORTER=11.3.1
 VERSION_SHORT=${VERSION_SHORTER}_PUBLIC
-CUSTOM_RELEASE_VERSION=${VERSION}-3
+CUSTOM_RELEASE_VERSION=${VERSION}-0
 
 DISTRO_URL=https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_${VERSION_SHORTER}_build/ghidra_${VERSION}.zip
 echo "download and unzip ghidra distribution from $DISTRO_URL"
