@@ -1,5 +1,44 @@
 <img src="Ghidra/Features/Base/src/main/resources/images/GHIDRA_3.png" width="400">
 
+# Notes about this fork
+
+This fork exists for two reasons: 
+1) The NSA doesn't publish the ghidra jar to maven central, but we want to depend on it via regular maven coordinates in our java/scala builds. 
+2) We want to be able to make our own decision about patches, e.g. [this one](https://github.com/NationalSecurityAgency/ghidra/pull/5256) which works fine but for some reason hasn't been merged upstream - this fork [has it](https://github.com/joernio/ghidra/pull/3).
+
+Note: we want to keep things simple, one of them being the git history. If you look at this repository you'll see that we take upstream ghidra and apply our changes on top. Which brings us to...
+
+## Howto: update to the latest ghidra upstream
+As mentioned above we want a simple git history and always have our changes _on top_, i.e. we never want to merge upstream changes into this repository. Instead, we rebase and force-push the changes to our fork's master. Some people might call that sinning, but simplicity is king, this is just a fork, and then there's yolo ¯\_(ツ)_/¯
+
+Prerequisite: remote 'upstream' is already set up, like so:
+```bash
+git remote add upstream git@github.com:NationalSecurityAgency/ghidra.git
+```
+
+Then:
+```bash
+git pull origin
+git fetch upstream
+git rebase upstream/master
+git push -f
+```
+
+## How can I run a release?
+Prerequisite: you need to have joern's sonatype credentials configured in your `~/.m2/settings.xml`, i.e. there should be an entry like this, which you can get from our sonatype central account. 
+```xml
+<server>
+  <!-- joern-io@central.sonatype.com -->
+  <id>sonatype-central-joern</id>
+  <username>MXQnCFgb</username>
+  <password>SECRET_TOKEN</password>
+</server>
+```
+Context: [pom.xml.template](https://github.com/joernio/ghidra/blob/40346937b37889112cd4515e0535bf9e37f69a9a/pom.xml.template#L50) references the sonatype central server as `sonatype-central-joern`
+
+Then you should be able to run `./ghidra-publish.sh` which will build ghidra, create a temporary maven project and publish it to sonatype central.
+
+
 # Ghidra Software Reverse Engineering Framework
 Ghidra is a software reverse engineering (SRE) framework created and maintained by the 
 [National Security Agency][nsa] Research Directorate. This framework includes a suite of 
