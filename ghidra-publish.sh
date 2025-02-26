@@ -3,45 +3,61 @@
 set -e #stop on error
 set -o pipefail
 
-# this script downloads a ghidra release from ghidra-sre and publishes it to
-# sonatype, so that we can promote it to maven central:
-# https://repo1.maven.org/maven2/io/joern/ghidra/
-# see also https://github.com/NationalSecurityAgency/ghidra/issues/799
+echo "Starting ghidra maven central release."
+echo "Every release must have a unique version - please adapt the 'application.release.name' property\
+ in the file we're about to open"
+echo "Note: it must be unique for the current 'application.version' - e.g. if the major version is\
+ 10.4 and we have already released JOERN-DEV-0, then increment it to JOERN-DEV-1"
+echo "Makes sense? Press ENTER to open Ghidra/application.properties"
+read CONFIRM
+vim Ghidra/application.properties
 
-VERSION=11.3.1_PUBLIC_20250219
-VERSION_SHORTER=11.3.1
-VERSION_SHORT=${VERSION_SHORTER}_PUBLIC
-CUSTOM_RELEASE_VERSION=${VERSION}-0
+MAJOR_VERSION=$(grep application.version      Ghidra/application.properties | cut -d= -f2)
+MINOR_VERSION=$(grep application.release.name Ghidra/application.properties | cut -d= -f2)
+FULL_VERSION=${MAJOR_VERSION}_${MINOR_VERSION}
+echo "Ok so you want to build and release ghidra version '${FULL_VERSION}'? We'll remove the build/dist directory in the process, so files from old releases will be deleted."
+echo "Press ENTER to proceed."
+read CONFIRM
 
-DISTRO_URL=https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_${VERSION_SHORTER}_build/ghidra_${VERSION}.zip
-echo "download and unzip ghidra distribution from $DISTRO_URL"
-wget $DISTRO_URL
-rm -rf ghidra_${VERSION_SHORT}
-unzip ghidra_$VERSION.zip
-rm ghidra_$VERSION.zip
-cd ghidra_${VERSION_SHORT}
-support/buildGhidraJar
+# the resulting zipfile name also includes the current date in YMD format, e.g. 20250226
+YEAR_MONTH_DAY=$(date +"%Y%m%d")
 
-# create custom-made maven build just for deploying to maven central
+# clean everything to be on the safe side
 rm -rf build
-mkdir build
-sed s/__VERSION__/$CUSTOM_RELEASE_VERSION/ ../pom.xml.template > build/pom.xml
-mkdir -p build/src/main/resources
-unzip -d build/src/main/resources ghidra.jar
 
-# add classes from ByteViewer.jar - those are looked up at runtime via reflection
-# context: lookup happens transitively by loading classes from _Root/Ghidra/EXTENSION_POINT_CLASSES
-# unzip flag `-o` to override and update files without prompting the user
-unzip -o -d build/src/main/resources Ghidra/Features/ByteViewer/lib/ByteViewer.jar
+# kick off the build
+gradle -I gradle/support/fetchDependencies.gradle buildGhidra
 
-# add an empty dummy class in order to generate sources and javadoc jars
-mkdir -p build/src/main/java
-echo '/** just an empty placeholder to trigger javadoc generation */
-public interface Empty {}' > build/src/main/java/Empty.java
+PROJECT_ROOT=$(pwd)
 
-# deploy to sonatype central
-pushd build
-mvn javadoc:jar source:jar package gpg:sign deploy
+pushd build/dist
+  unzip "ghidra_${FULL_VERSION}_${YEAR_MONTH_DAY}_linux_x86_64.zip"
+  pushd "ghidra_${FULL_VERSION}"
+    support/buildGhidraJar
+  popd
+
+  DIST_DIR=$(pwd)/ghidra_${FULL_VERSION}
+
+  mkdir -p maven-build
+  pushd maven-build
+    # create custom-made maven build just for deploying to maven central
+    sed s/__VERSION__/${FULL_VERSION}/ ${PROJECT_ROOT}/pom.xml.template > pom.xml
+    mkdir -p src/main/resources
+    unzip -d src/main/resources ${DIST_DIR}/ghidra.jar
+
+    # add classes from ByteViewer.jar - those are looked up at runtime via reflection
+    # context: lookup happens transitively by loading classes from _Root/Ghidra/EXTENSION_POINT_CLASSES
+    # unzip flag `-o` to override and update files without prompting the user
+    unzip -o -d src/main/resources ${DIST_DIR}/Ghidra/Features/ByteViewer/lib/ByteViewer.jar
+
+    # add an empty dummy class in order to generate sources and javadoc jars
+    mkdir -p src/main/java
+    echo '/** just an empty placeholder to trigger javadoc generation */
+    public interface empty {}' > src/main/java/empty.java
+
+    # deploy to sonatype central
+    mvn clean javadoc:jar source:jar deploy
+  popd
 popd
 
 echo "release is now published to sonatype central and should get promoted to maven central automatically. For more context go to https://central.sonatype.com/publishing/deployments"
