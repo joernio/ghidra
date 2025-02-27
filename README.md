@@ -1,5 +1,12 @@
 <img src="Ghidra/Features/Base/src/main/resources/images/GHIDRA_3.png" width="400">
 
+# Notes about this fork
+
+This fork exists for two reasons: 
+1) The NSA doesn't publish the ghidra jar to maven central, but we want to depend on it via regular maven coordinates in our java/scala builds. 
+2) We want to be able to make our own decision about patches, e.g. [this one](https://github.com/NationalSecurityAgency/ghidra/pull/5256) which works fine but for some reason hasn't been merged upstream - this fork [has it](https://github.com/joernio/ghidra/pull/3).
+
+
 # Ghidra Software Reverse Engineering Framework
 Ghidra is a software reverse engineering (SRE) framework created and maintained by the 
 [National Security Agency][nsa] Research Directorate. This framework includes a suite of 
