@@ -1,26 +1,36 @@
 #!/usr/bin/env bash
 
+# before we start: ensure that everything is committed and the git index is clean:
+# exit code is 1 if there are changes
+git diff-files --quiet
+if [[ $? -ne 0 ]]; then
+  echo "There are uncommitted changes in this git repository, please fix that!"
+  exit 1
+fi
+
+UNTRACKED_FILES_COUNT=$(git status --porcelain 2>/dev/null| grep "^??" | wc -l)
+if [[ $UNTRACKED_FILES_COUNT -ne 0 ]]; then
+  echo "There is/are $UNTRACKED_FILES_COUNT untracked file(s) in this git repository, please fix that!"
+  exit 1
+fi
+
 set -e #stop on error
 set -o pipefail
 
-echo "Starting ghidra maven central release."
-echo "Every release must have a unique version - please adapt the 'application.release.name' property\
- in the file we're about to open"
-echo "Note: it must be unique for the current 'application.version' - e.g. if the major version is\
- 10.4 and we have already released JOERN-DEV-0, then increment it to JOERN-DEV-1"
-echo "Makes sense? Press ENTER to open Ghidra/application.properties"
-read CONFIRM
-vim Ghidra/application.properties
+# setting the release.name in application.properties, a.k.a. minor version to include a git sha and the current date 
+GIT_SHA=$(git log -1 --pretty=format:%h)
+DATE_TIME=$(date +"%Y%m%d%H%M")
+MINOR_VERSION=${GIT_SHA}-${DATE_TIME}
+sed -i s/__RELEASE_NAME__/${MINOR_VERSION}/ Ghidra/application.properties
+
+
 
 MAJOR_VERSION=$(grep application.version      Ghidra/application.properties | cut -d= -f2)
-MINOR_VERSION=$(grep application.release.name Ghidra/application.properties | cut -d= -f2)
 FULL_VERSION=${MAJOR_VERSION}_${MINOR_VERSION}
-echo "Ok so you want to build and release ghidra version '${FULL_VERSION}'? We'll remove the build/dist directory in the process, so files from old releases will be deleted."
+echo "Ready to start ghidra build and maven central release for version '${FULL_VERSION}'?"
+echo "We'll remove the build/dist directory in the process, so files from old releases will be deleted."
 echo "Press ENTER to proceed."
 read CONFIRM
-
-# the resulting zipfile name also includes the current date in YMD format, e.g. 20250226
-YEAR_MONTH_DAY=$(date +"%Y%m%d")
 
 # clean everything to be on the safe side
 rm -rf build
@@ -31,6 +41,8 @@ gradle -I gradle/support/fetchDependencies.gradle buildGhidra
 PROJECT_ROOT=$(pwd)
 
 pushd build/dist
+  # the resulting zipfile name also includes the current date in YMD format, e.g. 20250226
+  YEAR_MONTH_DAY=$(date +"%Y%m%d")
   unzip "ghidra_${FULL_VERSION}_${YEAR_MONTH_DAY}_linux_x86_64.zip"
   pushd "ghidra_${FULL_VERSION}"
     support/buildGhidraJar
