@@ -40,7 +40,7 @@ BUILD_EXIT_CODE=$?
 git restore Ghidra/application.properties
 
 if [[ $BUILD_EXIT_CODE -ne 0 ]]; then
-  echo "There ghidra build failed, please check the console output above."
+  echo "The ghidra build failed, please check the console output above."
   exit 1
 fi
 
