@@ -82,6 +82,8 @@ pushd build/dist
   popd
 popd
 
-echo "release is now published to sonatype central and should get promoted to maven central automatically. For more context go to https://central.sonatype.com/publishing/deployments"
-echo "once it's synchronised to maven central (https://repo1.maven.org/maven2/io/joern/ghidra/), update the ghidra version in 'joern/project/Versions.scala' to $CUSTOM_RELEASE_VERSION"
-echo "don't forget to commit and push the local changes in this repo to https://github.com/joernio/ghidra"
+echo "success! release is now published to sonatype central and should get promoted to maven central automatically. For more context go to https://central.sonatype.com/publishing/deployments"
+echo "once it's synchronised to maven central (https://repo1.maven.org/maven2/io/joern/ghidra/), update the ghidra version in 'joern/project/Versions.scala' to:"
+echo "${bold}${FULL_VERSION}${normal}"
+
+
