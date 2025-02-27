@@ -23,5 +23,5 @@ jobs:
       - name: Upload decompiler
         uses: actions/upload-artifact@v4
         with:
-          path: target/joern-cli.zip
+          path: Ghidra/Features/Decompiler/build/os/*
           if-no-files-found: error
