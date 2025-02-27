@@ -14,29 +14,36 @@ if [[ $UNTRACKED_FILES_COUNT -ne 0 ]]; then
   exit 1
 fi
 
-set -e #stop on error
-set -o pipefail
-
-# setting the release.name in application.properties, a.k.a. minor version to include a git sha and the current date 
+MAJOR_VERSION=$(grep application.version      Ghidra/application.properties | cut -d= -f2)
 GIT_SHA=$(git log -1 --pretty=format:%h)
 DATE_TIME=$(date +"%Y%m%d%H%M")
 MINOR_VERSION=${GIT_SHA}-${DATE_TIME}
-sed -i s/__RELEASE_NAME__/${MINOR_VERSION}/ Ghidra/application.properties
-
-
-
-MAJOR_VERSION=$(grep application.version      Ghidra/application.properties | cut -d= -f2)
 FULL_VERSION=${MAJOR_VERSION}_${MINOR_VERSION}
-echo "Ready to start ghidra build and maven central release for version '${FULL_VERSION}'?"
-echo "We'll remove the build/dist directory in the process, so files from old releases will be deleted."
+echo "Ready to start ghidra build and maven central release for version ${FULL_VERSION}"
+echo "We'll remove the build directory, i.e. files from old releases will be deleted."
 echo "Press ENTER to proceed."
 read CONFIRM
 
 # clean everything to be on the safe side
 rm -rf build
 
-# kick off the build
-gradle -I gradle/support/fetchDependencies.gradle buildGhidra
+# setting the release.name in application.properties, a.k.a. minor version to include a git sha and the current date - we will revert this after the build
+sed -i s/__RELEASE_NAME__/${MINOR_VERSION}/ Ghidra/application.properties
+
+# build ghidra (we'll check and handle the exit code further down in case it fails...)
+BUILD_EXIT_CODE=$(gradle -I gradle/support/fetchDependencies.gradle buildGhidra)
+
+# revert the change we made above in application.properties: back to the placeholder
+git revert Ghidra/application.properties
+
+if [[ $BUILD_EXIT_CODE -ne 0 ]]; then
+  echo "There ghidra build failed, please check the console output above."
+  exit 1
+fi
+
+# from now on we want to stop on errors - note that prior to this line, we wanted to handle the exit codes explicitly!
+set -e #stop on error
+set -o pipefail
 
 PROJECT_ROOT=$(pwd)
 
