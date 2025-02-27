@@ -33,7 +33,7 @@ rm -rf build
 sed -i s/__RELEASE_NAME__/${MINOR_VERSION}/ Ghidra/application.properties
 
 # build ghidra (we'll check and handle the exit code further down in case it fails...)
-gradle buildGhidra
+gradle -I gradle/support/fetchDependencies.gradle buildGhidra
 BUILD_EXIT_CODE=$?
 
 # revert the change we made above in application.properties: back to the placeholder

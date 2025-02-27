@@ -1,9 +1,9 @@
 name: build native libraries
 on:
   workflow_dispatch:    # allow to manually trigger this workflow
-  push:
-    branches:
-      - michael/github-actions-debug
+  # push:
+  #   branches:
+  #     - michael/github-actions-debug
 jobs:
   natives:
     runs-on: ubuntu-latest
