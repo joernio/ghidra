@@ -19,9 +19,11 @@ GIT_SHA=$(git log -1 --pretty=format:%h)
 DATE_TIME=$(date +"%Y%m%d%H%M")
 MINOR_VERSION=${GIT_SHA}-${DATE_TIME}
 FULL_VERSION=${MAJOR_VERSION}_${MINOR_VERSION}
-echo "Ready to start ghidra build and maven central release for version ${FULL_VERSION}"
+bold=$(tput bold)
+normal=$(tput sgr0)
+echo "Ready to start ghidra build and maven central release for version ${bold}${FULL_VERSION}${normal}"
 echo "We'll remove the build directory, i.e. files from old releases will be deleted."
-echo "Press ENTER to proceed."
+echo "Press ${bold}ENTER${normal} to proceed."
 read CONFIRM
 
 # clean everything to be on the safe side
