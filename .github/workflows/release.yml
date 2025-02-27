@@ -1,0 +1,54 @@
+name: release
+on:
+  workflow_dispatch:    # allow to manually trigger this workflow
+  # push:
+  #   branches:
+  #     - master
+jobs:
+  build_natives:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - run: gradle -I gradle/support/fetchDependencies.gradle buildNatives
+      - name: Upload platform-specific binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{matrix.os}}
+          path: |
+            GPL/DemanglerGnu/build/os/*
+            Ghidra/Features/Decompiler/build/os/*
+            Ghidra/Features/FileFormats/build/os/*
+  build_ghidra:
+    needs: build_natives
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - run: git log -1 --pretty=format:%h
+      - name: List native binaries
+        run: tree GPL/DemanglerGnu/build/os Ghidra/Features/Decompiler/build/os Ghidra/Features/FileFormats/build/os
+      - name: Build release ghidra, all the way to maven central
+        run: ./ghidra-publish.sh --non-interactive
