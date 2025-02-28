@@ -30,38 +30,17 @@ jobs:
           echo ccc > GPL/DemanglerGnu/build/os/linux_x86_64/demangler_gnu_v2_24
           echo ddd > GPL/DemanglerGnu/build/os/linux_x86_64/demangler_gnu_v2_41
           echo eee > Ghidra/Features/FileFormats/build/os/linux_x86_64/lzfse
-      - name: Upload decompiler
+      - name: Upload platform-specific binaries
         uses: actions/upload-artifact@v4
         with:
-          path: Ghidra/Features/Decompiler/build/os/*
-          if-no-files-found: error
+          path: |
+            GPL/DemanglerGnu/build/os/*
+            Ghidra/Features/Decompiler/build/os/*
+            Ghidra/Features/FileFormats/build/os/*
   release:
+    needs: build-natives
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
       - name: Display structure of downloaded files
         run: ls -R
-
-  #     - name: for simplicity just quickly create some dummy files
-  #       run: |
-  #         mkdir -p Ghidra/Features/Decompiler/build/os/linux_x86_64
-  #         mkdir -p Ghidra/Features/FileFormats/build/os/linux_x86_64
-  #         mkdir -p GPL/DemanglerGnu/build/os/linux_x86_64
-  #         echo aaa > Ghidra/Features/Decompiler/build/os/linux_x86_64/decompile
-  #         echo bbb > Ghidra/Features/Decompiler/build/os/linux_x86_64/sleigh
-  #         echo ccc > GPL/DemanglerGnu/build/os/linux_x86_64/demangler_gnu_v2_24
-  #         echo ddd > GPL/DemanglerGnu/build/os/linux_x86_64/demangler_gnu_v2_41
-  #         echo eee > Ghidra/Features/FileFormats/build/os/linux_x86_64/lzfse
-  #     - name: Upload platform-specific binaries
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         path: |
-  #           GPL/DemanglerGnu/build/os/*
-  #           Ghidra/Features/Decompiler/build/os/*
-  #           Ghidra/Features/FileFormats/build/os/*
-  # release:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/download-artifact@v4
-  #     - name: Display structure of downloaded files
-  #       run: tree
