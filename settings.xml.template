@@ -1,0 +1,10 @@
+<settings>
+  <servers>
+    <server>
+      <!-- joern-io@central.sonatype.com -->
+      <id>sonatype-central-joern</id>
+      <username>__USERNAME__</username>
+      <password>__PASSWORD__</password>
+    </server>
+  </servers>
+</settings>

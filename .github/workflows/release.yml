@@ -3,7 +3,7 @@ on:
   workflow_dispatch:    # allow to manually trigger this workflow
   # push:
   #   branches:
-  #     - master
+  #     - michael/github-actions-debug2
 jobs:
   build_natives:
     runs-on: ${{matrix.os}}
@@ -50,5 +50,18 @@ jobs:
       - run: git log -1 --pretty=format:%h
       - name: List native binaries
         run: tree GPL/DemanglerGnu/build/os Ghidra/Features/Decompiler/build/os Ghidra/Features/FileFormats/build/os
+      - name: import PGP key for signing
+        run: echo $PGP_SECRET | base64 --decode | gpg --batch --import
+        env:
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+      - name: configure username/password in maven settings.xml
+        run: |
+          mkdir -p ~/.m2
+          cp settings.xml.template ~/.m2/settings.xml
+          sed -i s#__USERNAME__#${SONATYPE_USERNAME}# ~/.m2/settings.xml
+          sed -i s#__PASSWORD__#${SONATYPE_PASSWORD}# ~/.m2/settings.xml
+        env:
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
       - name: Build release ghidra, all the way to maven central
         run: ./ghidra-publish.sh --non-interactive
