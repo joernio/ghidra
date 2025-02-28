@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# on github actions we want to bypass user confirmation via --non-interactive
+NON_INTERACTIVE_OPTION=$1
+
 # before we start: ensure that everything is committed and the git index is clean:
 # exit code is 1 if there are changes
 git diff-files --quiet
@@ -23,8 +26,11 @@ bold=$(tput bold)
 normal=$(tput sgr0)
 echo "Ready to start ghidra build and maven central release for version ${bold}${FULL_VERSION}${normal}"
 echo "We'll remove the build directory, i.e. files from old releases will be deleted."
-echo "Press ${bold}ENTER${normal} to proceed."
-read CONFIRM
+if [ "$NON_INTERACTIVE_OPTION" != "--non-interactive" ]
+then
+  echo "Press ${bold}ENTER${normal} to proceed."
+  read CONFIRM
+fi
 
 # clean everything to be on the safe side
 rm -rf build

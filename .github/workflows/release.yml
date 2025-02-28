@@ -1,9 +1,9 @@
 name: release
 on:
   workflow_dispatch:    # allow to manually trigger this workflow
-  push:
-    branches:
-      - michael/github-actions-debug
+  # push:
+  #   branches:
+  #     - michael/github-actions-debug
 jobs:
   build_natives:
     runs-on: ${{matrix.os}}
@@ -48,6 +48,7 @@ jobs:
         with:
           merge-multiple: true
       - run: git log -1 --pretty=format:%h
-      - run: tree GPL/DemanglerGnu/build/os Ghidra/Features/Decompiler/build/os Ghidra/Features/FileFormats/build/os
-      - run: gradle -I gradle/support/fetchDependencies.gradle buildGhidra
-      - run: tree build GPL/DemanglerGnu/build/os Ghidra/Features/Decompiler/build/os Ghidra/Features/FileFormats/build/os
+      - name: List native binaries
+        run: tree GPL/DemanglerGnu/build/os Ghidra/Features/Decompiler/build/os Ghidra/Features/FileFormats/build/os
+      - name: Build release ghidra, all the way to maven central
+        run: ./ghidra-publish.sh --non-interactive
