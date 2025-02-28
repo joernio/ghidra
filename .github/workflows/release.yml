@@ -34,12 +34,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: |
-            GPL/DemanglerGnu/build/os/**/*
-            Ghidra/Features/Decompiler/build/os/**/*
-            Ghidra/Features/FileFormats/build/os/**/*
+            GPL/DemanglerGnu/build/os/*
+            Ghidra/Features/Decompiler/build/os/*
+            Ghidra/Features/FileFormats/build/os/*
   release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
       - name: Display structure of downloaded files
-        run: ls -R
+        run: tree
