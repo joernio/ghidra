@@ -23,8 +23,10 @@ jobs:
       - name: for simplicity just quickly create some dummy files
         run: |
           mkdir -p Ghidra/Features/Decompiler/build/os
+          mkdir -p Ghidra/Features/FileFormats/build/os/linux_x86_64
           echo aaa > Ghidra/Features/Decompiler/build/os/decompile
           echo bbb > Ghidra/Features/Decompiler/build/os/sleigh
+          echo eee > Ghidra/Features/FileFormats/build/os/linux_x86_64/lzfse
       - name: Upload decompiler
         uses: actions/upload-artifact@v4
         with:
