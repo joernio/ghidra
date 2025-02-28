@@ -47,9 +47,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           merge-multiple: true
-      - run: git status
       - run: git log -1 --pretty=format:%h
-      - name: Display structure of downloaded files
-        run: tree
+      - run: tree GPL/DemanglerGnu/build/os Ghidra/Features/Decompiler/build/os Ghidra/Features/FileFormats/build/os
       - run: gradle -I gradle/support/fetchDependencies.gradle buildGhidra
-      - run: tree build
+      - run: tree build GPL/DemanglerGnu/build/os Ghidra/Features/Decompiler/build/os Ghidra/Features/FileFormats/build/os
