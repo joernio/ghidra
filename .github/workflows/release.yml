@@ -6,30 +6,32 @@ on:
       - michael/github-actions-debug
 jobs:
   build-natives:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
     steps:
-      # TODO back to the real build once the upload/download wiring works
-      # - uses: actions/checkout@v4
-      #   with:
-      #     fetch-depth: 0
-      # - name: Set up JDK
-      #   uses: actions/setup-java@v4
-      #   with:
-      #     distribution: temurin
-      #     java-version: 21
-      # - name: Setup Gradle
-      #   uses: gradle/actions/setup-gradle@v4
-      # - run: gradle -I gradle/support/fetchDependencies.gradle buildNatives
-      - name: for simplicity just quickly create some dummy files
-        run: |
-          mkdir -p Ghidra/Features/Decompiler/build/os/linux_x86_64
-          mkdir -p Ghidra/Features/FileFormats/build/os/linux_x86_64
-          mkdir -p GPL/DemanglerGnu/build/os/linux_x86_64
-          echo aaa > Ghidra/Features/Decompiler/build/os/linux_x86_64/decompile
-          echo bbb > Ghidra/Features/Decompiler/build/os/linux_x86_64/sleigh
-          echo ccc > GPL/DemanglerGnu/build/os/linux_x86_64/demangler_gnu_v2_24
-          echo ddd > GPL/DemanglerGnu/build/os/linux_x86_64/demangler_gnu_v2_41
-          echo eee > Ghidra/Features/FileFormats/build/os/linux_x86_64/lzfse
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - run: gradle -I gradle/support/fetchDependencies.gradle buildNatives
+      # - name: for simplicity just quickly create some dummy files
+      #   run: |
+      #     mkdir -p Ghidra/Features/Decompiler/build/os/linux_x86_64
+      #     mkdir -p Ghidra/Features/FileFormats/build/os/linux_x86_64
+      #     mkdir -p GPL/DemanglerGnu/build/os/linux_x86_64
+      #     echo aaa > Ghidra/Features/Decompiler/build/os/linux_x86_64/decompile
+      #     echo bbb > Ghidra/Features/Decompiler/build/os/linux_x86_64/sleigh
+      #     echo ccc > GPL/DemanglerGnu/build/os/linux_x86_64/demangler_gnu_v2_24
+      #     echo ddd > GPL/DemanglerGnu/build/os/linux_x86_64/demangler_gnu_v2_41
+      #     echo eee > Ghidra/Features/FileFormats/build/os/linux_x86_64/lzfse
       - name: Upload platform-specific binaries
         uses: actions/upload-artifact@v4
         with:
