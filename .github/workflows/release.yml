@@ -59,10 +59,8 @@ jobs:
         run: |
           mkdir -p ~/.m2
           cp settings.xml.template ~/.m2/settings.xml
-          echo foo
-          echo ${SONATYPE_USERNAME}
-          echo bar
-          # sed -i s#__USERNAME__#${SONATYPE_USERNAME}# ~/.m2/settings.xml
+          sed -i s#__USERNAME__#${SONATYPE_USERNAME}# ~/.m2/settings.xml
+          cat ~/.m2/settings.xml
           # sed -i s#__PASSWORD__#${SONATYPE_PASSWORD}# ~/.m2/settings.xml
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
