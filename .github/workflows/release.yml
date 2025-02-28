@@ -1,56 +1,55 @@
 name: release
 on:
   workflow_dispatch:    # allow to manually trigger this workflow
-  push:
-    branches:
-      - michael/github-actions-debug2
-  #     - master
+  # push:
+  #   branches:
+  #     - michael/github-actions-debug2
 jobs:
-  # build_natives:
-  #   runs-on: ${{matrix.os}}
-  #   strategy:
-  #     matrix:
-  #       os: [macos-latest, windows-latest]
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
-  #     - name: Set up JDK
-  #       uses: actions/setup-java@v4
-  #       with:
-  #         distribution: temurin
-  #         java-version: 21
-  #     - name: Setup Gradle
-  #       uses: gradle/actions/setup-gradle@v4
-  #     - run: gradle -I gradle/support/fetchDependencies.gradle buildNatives
-  #     - name: Upload platform-specific binaries
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: ${{matrix.os}}
-  #         path: |
-  #           GPL/DemanglerGnu/build/os/*
-  #           Ghidra/Features/Decompiler/build/os/*
-  #           Ghidra/Features/FileFormats/build/os/*
+  build_natives:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - run: gradle -I gradle/support/fetchDependencies.gradle buildNatives
+      - name: Upload platform-specific binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{matrix.os}}
+          path: |
+            GPL/DemanglerGnu/build/os/*
+            Ghidra/Features/Decompiler/build/os/*
+            Ghidra/Features/FileFormats/build/os/*
   build_ghidra:
-    # needs: build_natives
+    needs: build_natives
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      # - name: Set up JDK
-      #   uses: actions/setup-java@v4
-      #   with:
-      #     distribution: temurin
-      #     java-version: 21
-      # - name: Setup Gradle
-      #   uses: gradle/actions/setup-gradle@v4
-      # - uses: actions/download-artifact@v4
-      #   with:
-      #     merge-multiple: true
-      # - run: git log -1 --pretty=format:%h
-      # - name: List native binaries
-      #   run: tree GPL/DemanglerGnu/build/os Ghidra/Features/Decompiler/build/os Ghidra/Features/FileFormats/build/os
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - run: git log -1 --pretty=format:%h
+      - name: List native binaries
+        run: tree GPL/DemanglerGnu/build/os Ghidra/Features/Decompiler/build/os Ghidra/Features/FileFormats/build/os
       - name: import PGP key for signing
         run: echo $PGP_SECRET | base64 --decode | gpg --batch --import
         env:
@@ -60,10 +59,9 @@ jobs:
           mkdir -p ~/.m2
           cp settings.xml.template ~/.m2/settings.xml
           sed -i s#__USERNAME__#${SONATYPE_USERNAME}# ~/.m2/settings.xml
-          cat ~/.m2/settings.xml
-          # sed -i s#__PASSWORD__#${SONATYPE_PASSWORD}# ~/.m2/settings.xml
+          sed -i s#__PASSWORD__#${SONATYPE_PASSWORD}# ~/.m2/settings.xml
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-      # - name: Build release ghidra, all the way to maven central
-      #   run: ./ghidra-publish.sh --non-interactive
+      - name: Build release ghidra, all the way to maven central
+        run: ./ghidra-publish.sh --non-interactive
