@@ -74,7 +74,7 @@ pushd build/dist
     unzip -d src/main/resources ${DIST_DIR}/ghidra.jar
 
     # add native libraries for windows/mac - these are built on github actions in the respective 'build_natives' jobs
-    for arch in mac_arm_64 win_x86_64
+    for arch in mac_arm_64 mac_x86_64 win_x86_64
     do
       cp -rpv ${PROJECT_ROOT}/Ghidra/Features/Decompiler/build/os/$arch src/main/resources/_Root/Ghidra/Features/Decompiler/os/
       cp -rpv ${PROJECT_ROOT}/Ghidra/Features/FileFormats/build/os/$arch src/main/resources/_Root/Ghidra/Features/FileFormats/os/
