@@ -38,8 +38,8 @@ rm -rf build
 # setting the release.name in application.properties, a.k.a. minor version to include a git sha and the current date - we will revert this after the build
 sed -i s/__RELEASE_NAME__/${MINOR_VERSION}/ Ghidra/application.properties
 
-# build ghidra (we'll check and handle the exit code further down in case it fails...)
-gradle -I gradle/support/fetchDependencies.gradle buildGhidra
+echo 'building ghidra now - the console output is very noisy, so we redirect it to buildGhidra.out'
+gradle -I gradle/support/fetchDependencies.gradle buildGhidra > buildGhidra.out
 BUILD_EXIT_CODE=$?
 
 # revert the change we made above in application.properties: back to the placeholder
@@ -61,7 +61,8 @@ pushd build/dist
   YEAR_MONTH_DAY=$(date +"%Y%m%d")
   unzip "ghidra_${FULL_VERSION}_${YEAR_MONTH_DAY}_linux_x86_64.zip"
   pushd "ghidra_${FULL_VERSION}"
-    support/buildGhidraJar
+    echo 'building ghidra jar now - the console output is very noisy, so we redirect it to buildGhidraJar.out'
+    support/buildGhidraJar > buildGhidraJar.out
   popd
 
   DIST_DIR=$(pwd)/ghidra_${FULL_VERSION}
