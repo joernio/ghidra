@@ -24,19 +24,10 @@ git rebase upstream/master
 git push -f
 ```
 
-## How can I run a release?
-Prerequisite: you need to have joern's sonatype credentials configured in your `~/.m2/settings.xml`, i.e. there should be an entry like this, which you can get from our sonatype central account. 
-```xml
-<server>
-  <!-- joern-io@central.sonatype.com -->
-  <id>sonatype-central-joern</id>
-  <username>MXQnCFgb</username>
-  <password>SECRET_TOKEN</password>
-</server>
-```
-Context: [pom.xml.template](https://github.com/joernio/ghidra/blob/40346937b37889112cd4515e0535bf9e37f69a9a/pom.xml.template#L50) references the sonatype central server as `sonatype-central-joern`
-
-Then you should be able to run `./ghidra-publish.sh` which will build ghidra, create a temporary maven project and publish it to sonatype central.
+## How can I release a new version?
+Releases run via github actions. Head over to https://github.com/joernio/ghidra/actions/workflows/release.yml, click `Run workflow` (only visible if you have the permission), then follow the logs. 
+This will first build the native libraries for `mac_arm_64`, `mac_x86_64`, `win_x86_64` and `linux_x86_64`, then build ghidra and publish everything to maven central. 
+You can find the released version at the end of the output of `ghidra-publish.sh` - search for e.g. `release is now published to sonatype central`.
 
 
 # Ghidra Software Reverse Engineering Framework
