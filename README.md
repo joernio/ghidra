@@ -1,5 +1,3 @@
-<img src="Ghidra/Features/Base/src/main/resources/images/GHIDRA_3.png" width="400">
-
 # Notes about this fork
 
 This fork exists for two reasons: 
@@ -28,6 +26,9 @@ git push -f
 Releases run via github actions. Head over to https://github.com/joernio/ghidra/actions/workflows/release.yml, click `Run workflow` (only visible if you have the permission), then follow the logs. 
 This will first build the native libraries for `mac_arm_64`, `mac_x86_64`, `win_x86_64` and `linux_x86_64`, then build ghidra and publish everything to maven central. 
 You can find the released version at the end of the output of `ghidra-publish.sh` - search for e.g. `release is now published to sonatype central`.
+
+
+<img src="Ghidra/Features/Base/src/main/resources/images/GHIDRA_3.png" width="400">
 
 
 # Ghidra Software Reverse Engineering Framework
